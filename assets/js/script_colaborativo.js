@@ -735,7 +735,7 @@ async function carregarRC() {
         const name = p.match(/RC_[\d._]+/)[0].replace("_", " ");
         rcLayers[name] = L.geoJSON(geo, {
           pane: "shapefilePane",
-          style: { color: "#000", weight: 2.5, fill: false },
+          style: { color: "#555", weight: 2.5, fill: true, fillColor: "#D3D3D3", fillOpacity: 0.4 },
         }).addTo(mapa);
         addLabel(rcLayers[name].getBounds().getCenter(), name, "rc-label");
         console.log(`✅ RC carregado: ${name}`);
@@ -796,17 +796,17 @@ async function carregarMalha() {
           if (typeof turf !== 'undefined') {
             rodLayers[nomeCompleto] = L.geoJSON(turf.simplify(feat, { tolerance: 0.00005 }), {
               pane: "rodoviasPane",
-              style: { color: "#555", weight: 3, opacity: 0.9 },
+              style: { color: "#42a5f5", weight: 4, opacity: 0.9 },
             }).addTo(mapa);
           } else {
             rodLayers[nomeCompleto] = L.geoJSON(feat, {
               pane: "rodoviasPane", 
-              style: { color: "#555", weight: 3, opacity: 0.9 },
+              style: { color: "#42a5f5", weight: 4, opacity: 0.9 },
             }).addTo(mapa);
           }
           // Evita sobreposição: empilha os labels com classe .stacked
-          const label = addLabel(rodLayers[nomeCompleto].getBounds().getCenter(), nome, "rod-label stacked");
-          rodLabels.push(label);
+          // const label = addLabel(rodLayers[nomeCompleto].getBounds().getCenter(), nome, "rod-label stacked");
+          // rodLabels.push(label);
         });
         
       console.log(`✅ Malha rodoviária carregada com ${Object.keys(rodLayers).length} rodovias`);

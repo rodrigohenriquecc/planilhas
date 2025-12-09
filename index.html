@@ -30,7 +30,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js" defer></script>
 
   <!-- script principal -->
-  <script src="assets/js/script_colaborativo.js" defer></script>
+  <script src="assets/js/script_colaborativo.js?v=1.1" defer></script>
 
   <!-- =========== ESTILOS BÁSICOS =========== -->
   <style>
@@ -61,23 +61,9 @@
       backdrop-filter: blur(1px);
     }
 
-    /* ─── NOVO: cartucho branco dos nomes de rodovia ─── */
+    /* ─── NOVO: cartucho branco dos nomes de rodovia (removido) ─── */
     .rod-label{
-      background:rgba(255,255,255,0.85);
-      color:#000;
-      padding:2px 4px;
-      border-radius:3px;
-      border:1px solid #d0d0d0;
-      font-weight:600;
-      box-shadow:0 0 2px rgba(0,0,0,.35);
-      white-space:nowrap;
-      pointer-events:none;
-      z-index:1000;
-      font-size: 8px;
-      letter-spacing: 0.1px;
-      margin-bottom: 2px;
-      margin-right: 2px;
-      backdrop-filter: blur(1px);
+      display: none;
     }
     /* Evita sobreposição dos labels de rodovia */
     .rod-label.stacked {
