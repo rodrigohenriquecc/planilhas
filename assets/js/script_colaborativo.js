@@ -540,12 +540,18 @@ function renderizarPontosDeInteresse() {
       // Popup simplificado com informações essenciais
       let popup = `<strong>📍 ${obs}</strong><br>
         🛣️ ${rodovia} - Km ${km.toFixed(3)}<br>`;
-      
+
       // Adiciona município se disponível nos dados oficiais
       if (pontoInfo && pontoInfo.MUNICÍPIO) {
         popup += `📍 ${pontoInfo.MUNICÍPIO}<br>`;
       }
-      
+
+      // Exibe a data se a coluna 'data' (ou variações) estiver presente na planilha
+      const dataValor = (ponto.data || ponto.Data || ponto.DATA || '').toString().trim();
+      if (dataValor.length > 0) {
+        popup += `📅 ${dataValor}<br>`;
+      }
+
       // NOVA: Exibe fotos da coluna "fotos" da planilha pontos_de_interesse
       if (fotos && fotos.trim().length > 0) {
         // Verifica se são múltiplas URLs separadas por vírgula ou ponto e vírgula
