@@ -91,9 +91,9 @@
       transition: left 0.3s, bottom 0.3s;
     }
     .card-fixo-esquerda {
-      left: 24px;
-      bottom: 20px;
-      right: auto;
+      left: 20px;
+      top: 40%;
+      transform: translateY(-50%);
       top: auto;
     }
 
@@ -445,6 +445,56 @@
         min-width: 120px;
       }
     }
+    /* ====== LEGENDA DE ATUALIZAÇÃO ====== */
+    .legenda-atualizacao {
+      position: fixed;
+      left: 12px;
+      top: 31%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.96);
+      border-radius: 8px;
+      padding: 8px 10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+      z-index: 1000;
+      font-size: 13px;
+      color: #333;
+      min-width: 170px;
+    }
+    .legenda-atualizacao .legenda-titulo {
+      font-weight: 700;
+      color: #1565c0;
+      margin-bottom: 6px;
+    }
+    .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex: 0 0 12px;
+      box-shadow: 0 0 2px rgba(0,0,0,0.18);
+    }
+    .dot.azul { background: #1976d2; }
+    .dot.vermelha { background: #d32f2f; }
+
+    @media (max-width: 700px) {
+      .legenda-atualizacao { left: 12px; top: auto; bottom: 20px; transform: none; min-width: 140px; }
+    }
+    @media (max-width: 480px) {
+      .legenda-atualizacao {
+        left: auto;
+        right: 12px;
+        bottom: 80px;
+        transform: none;
+        min-width: 120px;
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 
@@ -460,6 +510,13 @@
     <a href="https://docs.google.com/spreadsheets/d/1r-7wdW8IwNhDMmGJ_QoflML-Mo1wvgAuw6ILK_LFlpo/edit?usp=drive_link" target="_blank" class="btn-planilha">
       Linhas por Trecho
     </a>
+  </div>
+
+  <!-- Legenda de atualização -->
+  <div class="legenda-atualizacao" aria-label="Legenda de atualização">
+    <div class="legenda-titulo">Atualização</div>
+    <div class="legenda-item"><span class="dot azul" aria-hidden="true"></span> Atual (6 meses ou menos)</div>
+    <div class="legenda-item"><span class="dot vermelha" aria-hidden="true"></span> Faz 6 meses sem atualizar</div>
   </div>
 
   <!-- Geolocalização -->
