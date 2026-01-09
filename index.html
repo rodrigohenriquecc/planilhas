@@ -481,6 +481,7 @@
     }
     .dot.azul { background: #1976d2; }
     .dot.vermelha { background: #d32f2f; }
+    .dot.preta { background: #000; }
 
     @media (max-width: 700px) {
       .legenda-atualizacao { left: 12px; top: auto; bottom: 20px; transform: none; min-width: 140px; }
@@ -516,7 +517,8 @@
   <div class="legenda-atualizacao" aria-label="Legenda de atualização">
     <div class="legenda-titulo">Atualização</div>
     <div class="legenda-item"><span class="dot azul" aria-hidden="true"></span> Atual (6 meses ou menos)</div>
-    <div class="legenda-item"><span class="dot vermelha" aria-hidden="true"></span> Faz 6 meses sem atualizar</div>
+    <div class="legenda-item"><span class="dot vermelha" aria-hidden="true"></span> 6 meses sem atualizar</div>
+    <div class="legenda-item"><span class="dot preta" aria-hidden="true"></span> Sem fresa no local</div>
   </div>
 
   <!-- Geolocalização -->
@@ -589,6 +591,31 @@ function mostrarMensagemDiscreta(texto, tempo = 2500) {
     setTimeout(() => { msgDiv.style.display = 'none'; }, 400);
   }, tempo);
 }
+      // Formata KM preservando zeros à esquerda e 3 casas decimais com vírgula
+      function formatKmDisplay(raw) {
+        if (raw === undefined || raw === null) return null;
+        let s = raw.toString().trim();
+        if (!s) return null;
+        s = s.replace(/\s+/g, '');
+        const lastComma = s.lastIndexOf(',');
+        const lastDot = s.lastIndexOf('.');
+        const sepIndex = Math.max(lastComma, lastDot);
+        let intPart = '';
+        let decPart = '';
+        if (sepIndex !== -1) {
+          intPart = s.slice(0, sepIndex);
+          decPart = s.slice(sepIndex + 1);
+        } else {
+          intPart = s;
+          decPart = '';
+        }
+        intPart = intPart.replace(/\D/g, '');
+        decPart = decPart.replace(/\D/g, '');
+        if (intPart.length === 0) intPart = '0';
+        if (decPart.length > 3) decPart = decPart.slice(0, 3);
+        while (decPart.length < 3) decPart += '0';
+        return `${intPart},${decPart}`;
+      }
       // Inicializa referências dos elementos após o DOM estar pronto
       var filtroKmLink = document.getElementById('filtroKmLink');
       var msgKmProximo = document.getElementById('msgKmProximo');
@@ -623,11 +650,13 @@ function mostrarMensagemDiscreta(texto, tempo = 2500) {
         // Filtra os kms correspondentes à rodovia selecionada
         const arr = dadosPlanilhaOficial.filter(l => (l.SP?.trim() === rod) && (l['KM '] || l.Km));
         arr.forEach(p => {
-          let kmNum = p['KM '] ? parseFloat(p['KM '].replace(',', '.')) : (p.Km ? parseFloat(p.Km.replace(',', '.')) : NaN);
+          const raw = p['KM '] !== undefined ? p['KM '] : p.Km;
+          const display = formatKmDisplay(raw);
+          const kmNum = display ? parseFloat(display.replace(',', '.')) : NaN;
           if (!isNaN(kmNum)) {
             const opt = document.createElement('option');
-            opt.value = kmNum.toFixed(3);
-            opt.textContent = kmNum.toFixed(3);
+            opt.value = kmNum.toFixed(3); // valor numérico (ponto) para comparação
+            opt.textContent = display; // mostra com vírgula e zeros à esquerda preservados
             kmSelect.appendChild(opt);
           }
         });
@@ -686,10 +715,17 @@ function mostrarMensagemDiscreta(texto, tempo = 2500) {
         // Exibe os dados essenciais + link
         let infoHtml = `<div style='font-size:15px;text-align:left;margin-bottom:6px;'>`;
         if (usouProximo) {
-          infoHtml += `<span style='color:#c62828;font-size:13px;'>Km não disponível. Mostrando informações do Km mais próximo: <b>${ponto.Km || ponto['KM '] || '-'}</b></span><br>`;
+          const proxDisplay = formatKmDisplay(ponto.Km || ponto['KM ']) || '-';
+          infoHtml += `<span style='color:#c62828;font-size:13px;'>Km não disponível. Mostrando informações do Km mais próximo: <b>${proxDisplay}</b></span><br>`;
         }
         infoHtml += `<b>Rodovia:</b> ${rod}<br>`;
-        infoHtml += `<b>Km:</b> ${ponto.Km || ponto['KM '] || '-'}<br>`;
+        const pontoKmDisplay = formatKmDisplay(ponto.Km || ponto['KM ']) || '-';
+        let linhaRef = '';
+        if (Array.isArray(dadosPlanilhaOficial)) {
+          const idx = dadosPlanilhaOficial.indexOf(ponto);
+          if (idx >= 0) linhaRef = `Linha C${idx + 2} `; // +2 assume header row
+        }
+        infoHtml += `<b>Km:</b> ${linhaRef}${pontoKmDisplay}<br>`;
         infoHtml += `<b>Município:</b> ${ponto.Município || ponto.MUNICÍPIO || '-'}<br>`;
         infoHtml += `<b>Tipo:</b> ${ponto.Tipo || ponto.TIPO || '-'}<br>`;
         infoHtml += `<b>Coordenada:</b> ${coordStr}`;
@@ -828,15 +864,18 @@ function mostrarMensagemDiscreta(texto, tempo = 2500) {
             dadosPlanilhaOficial = data;
             rodoviasPlanilha = [...new Set(data.map(l => l.SP?.trim()).filter(Boolean))];
             kmsPorRodovia = {};
-            data.forEach(linha => {
+            data.forEach((linha, i) => {
               const rod = linha.SP?.trim();
-              const kmStr = linha['KM ']?.replace(',', '.');
+              const kmRaw = linha['KM '];
+              const kmStr = kmRaw?.toString().replace(',', '.');
               const km = parseFloat(kmStr);
               if (!rod || isNaN(km)) return;
               if (!kmsPorRodovia[rod]) kmsPorRodovia[rod] = [];
               kmsPorRodovia[rod].push({
                 ...linha,
                 km,
+                kmRaw: kmRaw, // preserva string original para exibir exatamente como vem
+                row: i + 2,
                 lat: parseFloat((linha.LOCALIZAÇÃO||'').split(',')[0]),
                 lng: parseFloat((linha.LOCALIZAÇÃO||'').split(',')[1])
               });
@@ -879,10 +918,11 @@ function mostrarMensagemDiscreta(texto, tempo = 2500) {
         kmSelect.innerHTML = '';
         arr.forEach(p => {
           const kmNum = parseFloat(p['KM '].replace(',', '.'));
+          const display = formatKmDisplay(p['KM '] || p.Km) || (isNaN(kmNum) ? null : kmNum.toFixed(3).replace('.', ','));
           if (!isNaN(kmNum)) {
             const opt = document.createElement('option');
             opt.value = kmNum.toFixed(3);
-            opt.textContent = kmNum.toFixed(3);
+            opt.textContent = display || kmNum.toFixed(3);
             kmSelect.appendChild(opt);
           }
         });
@@ -915,7 +955,8 @@ function mostrarMensagemDiscreta(texto, tempo = 2500) {
           usouProximo = true;
         }
         if (usouProximo) {
-          msgKmProximo.textContent = `Km não disponível. Mostrando informações do Km mais próximo: ${ponto.km.toFixed(3)}`;
+          const proxDisplay = formatKmDisplay(ponto.kmRaw) || (ponto.km !== undefined ? ponto.km.toFixed(3).replace('.', ',') : '-');
+          msgKmProximo.textContent = `Km não disponível. Mostrando informações do Km mais próximo: ${proxDisplay}`;
           msgKmProximo.style.display = '';
         }
         // Mostra marcador e link
@@ -939,10 +980,13 @@ function mostrarMensagemDiscreta(texto, tempo = 2500) {
         // Mostra quadro de informações detalhadas, exibindo apenas os dados essenciais
         let infoHtml = `<div style='font-size:15px;text-align:left;margin-bottom:6px;'>`;
         if (usouProximo) {
-          infoHtml += `<span style='color:#c62828;font-size:13px;'>Km não disponível. Mostrando informações do Km mais próximo: <b>${ponto.km !== undefined ? ponto.km.toFixed(3) : '-'}</b></span><br>`;
+          const proxDisplay = formatKmDisplay(ponto.kmRaw) || (ponto.km !== undefined ? ponto.km.toFixed(3).replace('.', ',') : '-');
+          infoHtml += `<span style='color:#c62828;font-size:13px;'>Km não disponível. Mostrando informações do Km mais próximo: <b>${proxDisplay}</b></span><br>`;
         }
         infoHtml += `<b>Rodovia:</b> ${ponto.SP || rod || '-'}<br>`;
-        infoHtml += `<b>Km:</b> ${ponto.km !== undefined ? ponto.km.toFixed(3) : '-'}<br>`;
+        const linhaRef = ponto.row ? `Linha C${ponto.row} ` : '';
+        const kmDisplay = formatKmDisplay(ponto.kmRaw) || (ponto.km !== undefined ? ponto.km.toFixed(3).replace('.', ',') : '-');
+        infoHtml += `<b>Km:</b> ${linhaRef}${kmDisplay}<br>`;
         infoHtml += `<b>Município:</b> ${ponto.MUNICÍPIO || ponto.municipio || '-'}<br>`;
         infoHtml += `<b>Tipo:</b> ${ponto.TIPO || ponto.tipo || '-'}<br>`;
         let latFinal = ponto.lat !== undefined ? ponto.lat : undefined;

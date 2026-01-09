@@ -29,6 +29,32 @@ const layers = {
 let pontosMalhaOficial = [];
 let indexMalhaOficial = {};
 
+// Formata KM a partir do valor bruto lido no CSV (preserva inteiros e garante 3 casas decimais com vírgula)
+function formatKmFromRaw(raw) {
+  if (raw === undefined || raw === null) return null;
+  let s = raw.toString().trim();
+  if (!s) return null;
+  s = s.replace(/\s+/g, '');
+  const lastComma = s.lastIndexOf(',');
+  const lastDot = s.lastIndexOf('.');
+  const sepIndex = Math.max(lastComma, lastDot);
+  let intPart = '';
+  let decPart = '';
+  if (sepIndex !== -1) {
+    intPart = s.slice(0, sepIndex);
+    decPart = s.slice(sepIndex + 1);
+  } else {
+    intPart = s;
+    decPart = '';
+  }
+  intPart = intPart.replace(/\D/g, '');
+  decPart = decPart.replace(/\D/g, '');
+  if (intPart.length === 0) intPart = '0';
+  if (decPart.length > 3) decPart = decPart.slice(0, 3);
+  while (decPart.length < 3) decPart += '0';
+  return `${intPart},${decPart}`;
+}
+
 /**
  * Carrega PLANILHA BI - OFICIAL.csv e indexa por rodovia e km
  */
@@ -538,8 +564,9 @@ function renderizarPontosDeInteresse() {
         weight: 2
       });
       // Popup simplificado com informações essenciais
+      const kmDisplay = formatKmFromRaw(ponto.km) || (km !== undefined ? km.toFixed(3).replace('.', ',') : '0,000');
       let popup = `<strong>📍 ${obs}</strong><br>
-        🛣️ ${rodovia} - Km ${km.toFixed(3)}<br>`;
+        🛣️ ${rodovia} - Km ${kmDisplay}<br>`;
 
       // Adiciona município se disponível nos dados oficiais
       if (pontoInfo && pontoInfo.MUNICÍPIO) {
