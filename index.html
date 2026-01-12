@@ -496,57 +496,216 @@
         font-size: 12px;
       }
     }
+
+    /* ====== MOBILE SHEET E MAPA IMERSIVO ====== */
+    #fabMenu {
+      display: none;
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%);
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      box-shadow: 0 10px 26px rgba(25, 118, 210, 0.35);
+      z-index: 1400;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #fabMenu:active { transform: translateY(1px); box-shadow: 0 6px 18px rgba(25, 118, 210, 0.35); }
+
+    #mobileOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 22, 48, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 1200;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    #mobileOverlay.open { display: block; opacity: 1; pointer-events: auto; }
+
+    #mobileSheet {
+      display: contents;
+    }
+    #mobileSheet .sheet-header { display: none; }
+    #mobileSheet .sheet-title { font-size: 16px; font-weight: 700; color: #0d47a1; }
+    #mobileSheet .sheet-close {
+      border: none;
+      background: #eef2f6;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      font-size: 18px;
+      cursor: pointer;
+      color: #0d47a1;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+    #mobileSheet .sheet-content { display: contents; }
+
+    @media (max-width: 768px) {
+      html, body { height: 100%; overflow: hidden; }
+      #map {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100dvh;
+      }
+
+      #fabMenu { display: inline-flex; }
+      #mobileOverlay { display: block; pointer-events: none; }
+
+      #mobileSheet {
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        left: 0;
+        right: 0;
+        bottom: -80dvh;
+        max-height: 78dvh;
+        padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+        background: #ffffff;
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.28);
+        z-index: 1300;
+        transform: translateY(4%);
+        transition: transform 0.3s ease, bottom 0.3s ease;
+        overflow: hidden;
+      }
+      #mobileSheet::before {
+        content: "";
+        width: 52px;
+        height: 4px;
+        border-radius: 999px;
+        background: #d8d8d8;
+        align-self: center;
+      }
+      #mobileSheet.open { bottom: 0; transform: translateY(0); }
+      #mobileSheet .sheet-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      #mobileSheet .sheet-content { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; max-height: 100%; padding-bottom: 4px; }
+      #mobileOverlay.open { pointer-events: auto; }
+
+      .planilhas-container,
+      .legenda-atualizacao,
+      .geolocalizacao-container,
+      .import-card {
+        position: relative;
+        top: auto;
+        right: auto;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        width: 100%;
+        max-width: none;
+        z-index: auto;
+      }
+
+      .planilhas-container { gap: 10px; }
+      .btn-planilha { width: 100%; justify-content: center; }
+
+      .legenda-atualizacao {
+        min-width: 100%;
+        width: 100%;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      }
+
+      .geolocalizacao-container {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+      }
+      .geolocalizacao-info {
+        position: relative;
+        display: block;
+        min-width: 0;
+        flex: 1;
+      }
+      .btn-geolocalizacao {
+        width: 56px;
+        height: 56px;
+        flex: 0 0 56px;
+      }
+
+      .import-card {
+        width: 100%;
+        padding: 12px 12px 10px 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+      }
+
+      body.menu-open { overflow: hidden; }
+    }
   </style>
 </head>
 
 <body>
-  <!-- Botões de Acesso às Planilhas -->
-  <div class="planilhas-container">
-    <a href="https://docs.google.com/spreadsheets/d/1Zxrq6L68fkTuygCE6yVVLOb9wU0UhoQfQHOMm_Xr8RI/edit?gid=1698628532#gid=1698628532" target="_blank" class="btn-planilha btn-pontos">
-      Pontos de Interesse
-    </a>
-    <a href="https://docs.google.com/spreadsheets/d/1IcM6qrF9JpZlJ6c6P1pvb8O5bhmdgDz4gKCtf8V2JUg/edit?usp=drive_link" target="_blank" class="btn-planilha btn-calor">
-      Mapa de Calor
-    </a>
-    <a href="https://docs.google.com/spreadsheets/d/1r-7wdW8IwNhDMmGJ_QoflML-Mo1wvgAuw6ILK_LFlpo/edit?usp=drive_link" target="_blank" class="btn-planilha">
-      Linhas por Trecho
-    </a>
-  </div>
+  <button id="fabMenu" type="button" aria-label="Abrir painel de controles">☰</button>
+  <div id="mobileOverlay" aria-hidden="true"></div>
 
-  <!-- Legenda de atualização -->
-  <div class="legenda-atualizacao" aria-label="Legenda de atualização">
-    <div class="legenda-titulo">Atualização</div>
-    <div class="legenda-item"><span class="dot azul" aria-hidden="true"></span> Atual (6 meses ou menos)</div>
-    <div class="legenda-item"><span class="dot vermelha" aria-hidden="true"></span> 6 meses sem atualizar</div>
-    <div class="legenda-item"><span class="dot preta" aria-hidden="true"></span> Sem fresa no local</div>
-  </div>
-
-  <!-- Geolocalização -->
-  <div class="geolocalizacao-container">
-    <div id="geolocalizacaoInfo" class="geolocalizacao-info">
-      <div id="geoStatus">Clique para ativar localização</div>
-      <div id="geoCoordenadas" style="font-size: 10px; margin-top: 2px;"></div>
+  <div id="mobileSheet" aria-label="Menu mobile de controles">
+    <div class="sheet-header">
+      <div class="sheet-title">Controles</div>
+      <button id="closeSheet" class="sheet-close" type="button" aria-label="Fechar painel">✕</button>
     </div>
-    <button id="btnGeolocalizacao" class="btn-geolocalizacao" title="Ativar/Desativar localização em tempo real">
-      📍
-    </button>
-  </div>
+    <div class="sheet-content">
+      <!-- Botões de Acesso às Planilhas -->
+      <div class="planilhas-container">
+        <a href="https://docs.google.com/spreadsheets/d/1Zxrq6L68fkTuygCE6yVVLOb9wU0UhoQfQHOMm_Xr8RI/edit?gid=1698628532#gid=1698628532" target="_blank" class="btn-planilha btn-pontos">
+          Pontos de Interesse
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/1IcM6qrF9JpZlJ6c6P1pvb8O5bhmdgDz4gKCtf8V2JUg/edit?usp=drive_link" target="_blank" class="btn-planilha btn-calor">
+          Mapa de Calor
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/1r-7wdW8IwNhDMmGJ_QoflML-Mo1wvgAuw6ILK_LFlpo/edit?usp=drive_link" target="_blank" class="btn-planilha">
+          Linhas por Trecho
+        </a>
+      </div>
 
-  <!-- Sidebar esquerda -->
-  <div class="import-card" id="importCard">
-    <div class="filtro-rodovia-card" id="filtroRodoviaCard">
-      <label class="filtro-rodovia-label" for="filtroRodovia">Rodovia</label>
-      <select id="filtroRodovia" class="filtro-rodovia-select">
-        <option value="">Rodovia</option>
-      </select>
-      <label class="filtro-rodovia-label" for="filtroKm">Km</label>
-      <select id="filtroKm" class="filtro-km-input" disabled>
-        <option value="">Selecione o Km</option>
-      </select>
-      <button id="filtroKmBtn" class="filtro-km-btn" disabled>Localizar</button>
-      <a id="filtroKmLink" class="filtro-km-link" href="#" target="_blank" style="display:none;"></a>
-      <div id="msgKmProximo" style="display:none;"></div>
-      <div id="quadroFotoKm" style="display:none;margin-top:8px;text-align:left;"></div>
+      <!-- Legenda de atualização -->
+      <div class="legenda-atualizacao" aria-label="Legenda de atualização">
+        <div class="legenda-titulo">Atualização</div>
+        <div class="legenda-item"><span class="dot azul" aria-hidden="true"></span> Atual (6 meses ou menos)</div>
+        <div class="legenda-item"><span class="dot vermelha" aria-hidden="true"></span> 6 meses sem atualizar</div>
+        <div class="legenda-item"><span class="dot preta" aria-hidden="true"></span> Sem fresa no local</div>
+      </div>
+
+      <!-- Geolocalização -->
+      <div class="geolocalizacao-container">
+        <div id="geolocalizacaoInfo" class="geolocalizacao-info">
+          <div id="geoStatus">Clique para ativar localização</div>
+          <div id="geoCoordenadas" style="font-size: 10px; margin-top: 2px;"></div>
+        </div>
+        <button id="btnGeolocalizacao" class="btn-geolocalizacao" title="Ativar/Desativar localização em tempo real">
+          📍
+        </button>
+      </div>
+
+      <!-- Sidebar esquerda -->
+      <div class="import-card" id="importCard">
+        <div class="filtro-rodovia-card" id="filtroRodoviaCard">
+          <label class="filtro-rodovia-label" for="filtroRodovia">Rodovia</label>
+          <select id="filtroRodovia" class="filtro-rodovia-select">
+            <option value="">Rodovia</option>
+          </select>
+          <label class="filtro-rodovia-label" for="filtroKm">Km</label>
+          <select id="filtroKm" class="filtro-km-input" disabled>
+            <option value="">Selecione o Km</option>
+          </select>
+          <button id="filtroKmBtn" class="filtro-km-btn" disabled>Localizar</button>
+          <a id="filtroKmLink" class="filtro-km-link" href="#" target="_blank" style="display:none;"></a>
+          <div id="msgKmProximo" style="display:none;"></div>
+          <div id="quadroFotoKm" style="display:none;margin-top:8px;text-align:left;"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1260,6 +1419,33 @@ window.addEventListener('beforeunload', function() {
   if (geolocalizacaoAtiva) {
     pararGeolocalizacao();
   }
+});
+
+// ====== MENU MOBILE (LAYOUT APENAS) ======
+function openMenu() {
+  const sheet = document.getElementById('mobileSheet');
+  const overlay = document.getElementById('mobileOverlay');
+  sheet?.classList.add('open');
+  overlay?.classList.add('open');
+  document.body.classList.add('menu-open');
+}
+
+function closeMenu() {
+  const sheet = document.getElementById('mobileSheet');
+  const overlay = document.getElementById('mobileOverlay');
+  sheet?.classList.remove('open');
+  overlay?.classList.remove('open');
+  document.body.classList.remove('menu-open');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const fabMenu = document.getElementById('fabMenu');
+  const overlay = document.getElementById('mobileOverlay');
+  const closeBtn = document.getElementById('closeSheet');
+
+  if (fabMenu) fabMenu.addEventListener('click', openMenu);
+  if (overlay) overlay.addEventListener('click', closeMenu);
+  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
 });
   </script>
 </body>
