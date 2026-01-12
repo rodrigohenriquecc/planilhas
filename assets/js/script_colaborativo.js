@@ -857,8 +857,9 @@ async function carregarMalha() {
 function inicializar() {
   console.log("🚀 Inicializando sistema DR.02...");
   
-  // Adiciona controles
-  adicionarControles();
+  // Adiciona controles (REMOVIDO):
+  // Pedido: remover o filtro/box "📊 Camadas" (desktop e mobile) sem alterar o restante do site.
+  // adicionarControles();
   
   // Carrega dados iniciais
   carregarTodosDados();
